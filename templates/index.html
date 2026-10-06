@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Code Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="logo">⚡ AI Code Generator</div>
+        <div class="badge">Powered by AI</div>
+    </header>
+
+    <main class="container">
+
+        <section class="hero">
+            <h1>Natural Language<br><span>Code Generator</span></h1>
+
+            <p>
+                Describe what you want in simple English,
+                and generate clean Python code using AI.
+            </p>
+        </section>
+
+        <section class="card">
+
+            <label for="request">What do you want to build?</label>
+
+            <textarea
+                id="request"
+                placeholder="Example: Create a Python program to check whether a number is prime..."
+            ></textarea>
+
+            <div class="examples">
+                <button onclick="useExample('Create a Python program to calculate factorial of a number')">
+                    Factorial
+                </button>
+
+                <button onclick="useExample('Create a Python program to check whether a number is prime')">
+                    Prime Number
+                </button>
+
+                <button onclick="useExample('Create a Python calculator with addition, subtraction, multiplication and division')">
+                    Calculator
+                </button>
+
+                <button onclick="useExample('Create a Python program to sort a list of numbers')">
+                    Sort List
+                </button>
+            </div>
+
+            <button class="generate-btn" onclick="generateCode()">
+                Generate Python Code
+            </button>
+
+            <div id="status"></div>
+
+        </section>
+
+        <section class="output-card">
+
+            <div class="output-header">
+                <h2>Generated Code</h2>
+
+                <button class="copy-btn" onclick="copyCode()">
+                    Copy Code
+                </button>
+            </div>
+
+            <pre><code id="codeOutput">Your generated Python code will appear here...</code></pre>
+
+        </section>
+
+    </main>
+
+    <footer>
+        Natural Language Code Generator • Python + Flask + AI
+    </footer>
+
+
+    <script>
+
+        function useExample(text) {
+            document.getElementById("request").value = text;
+        }
+
+
+        async function generateCode() {
+
+            const request = document.getElementById("request").value.trim();
+            const output = document.getElementById("codeOutput");
+            const status = document.getElementById("status");
+
+            if (!request) {
+                status.textContent = "Please enter a request first.";
+                return;
+            }
+
+            status.textContent = "Generating code...";
+
+            output.textContent = "Please wait...";
+
+            try {
+
+                const response = await fetch("/generate", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        request: request
+                    })
+
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Something went wrong.");
+                }
+
+                output.textContent = data.code;
+
+                status.textContent = "Code generated successfully!";
+
+            } catch (error) {
+
+                output.textContent = "";
+
+                status.textContent = "Error: " + error.message;
+
+            }
+        }
+
+
+        function copyCode() {
+
+            const code = document.getElementById("codeOutput").textContent;
+
+            if (!code || code === "Your generated Python code will appear here...") {
+                return;
+            }
+
+            navigator.clipboard.writeText(code);
+
+            document.getElementById("status").textContent =
+                "Code copied to clipboard!";
+        }
+
+    </script>
+
+</body>
+</html>
